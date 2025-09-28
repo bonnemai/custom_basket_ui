@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { Alert, Button, Card, Col, Form, Input, InputNumber, Row, Space, Tag, Typography } from 'antd';
-import { useCreateBasket } from './hooks/useCreateBasket';
+import { useCreateBasket, API_BASE_URL } from './hooks/useCreateBasket';
 import { useBasketStream } from './hooks/useBasketStream';
 import PositionsGrid from './components/PositionsGrid';
 import ExistingBasketsGrid from './components/ExistingBasketsGrid';
@@ -26,8 +26,7 @@ export const cleansePayload = (
   notional: Number(Number(payload.notional).toFixed(2))
 });
 
-const PRICING_DOCS_URL =
-  import.meta.env.VITE_PRICING_API_DOCS_URL ?? 'http://localhost:8000/docs#/';
+const DOCS_URL = `${API_BASE_URL}docs#/`;
 
 function App() {
   const [formData, setFormData] = useState(createInitialRequest);
@@ -72,7 +71,7 @@ function App() {
           <Title level={2}>Custom Basket Builder</Title>
           <Paragraph>
             Configure your basket, review the outgoing JSON payload, and send it to the basket service. Review the{' '}
-            <Link href={PRICING_DOCS_URL} target="_blank" rel="noreferrer noopener">
+            <Link href={DOCS_URL} target="_blank" rel="noreferrer noopener">
               API documentation
             </Link>{' '}
             for request details.

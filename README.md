@@ -1,6 +1,6 @@
 # Custom Basket Pricing UI
 
-React single-page app to create custom baskets against the API exposed at `POST /baskets`. The base URL is supplied via `CUSTOM_BASKET_API_URL` and defaults to `http://localhost:8000/` (the UI appends `/baskets` automatically).
+React single-page app to create custom baskets against the API exposed at `POST /baskets`. The base URL is supplied via `VITE_CUSTOM_BASKET_API_URL` and defaults to `http://localhost:8000/` (the UI appends `/baskets` automatically).
 
 The UI also listens to `GET /baskets/stream` via Server-Sent Events to display live valuations of existing baskets.
 
@@ -8,10 +8,11 @@ The UI also listens to `GET /baskets/stream` via Server-Sent Events to display l
 - Dynamic form for basket details and position weights
 - Metadata cleanup for each position prior to submission
 - AG Grid-powered creation flow for new custom baskets
+- Clipboard paste support to import tickers and weights directly from spreadsheets
 - Live basket valuation grid backed by Server-Sent Events
 - Live request payload preview and JSON response viewer
 - Ant Design powered layout and controls
-- Environment-configured API endpoint via `CUSTOM_BASKET_API_URL`
+- Environment-configured API endpoint via `VITE_CUSTOM_BASKET_API_URL`
 - Unit tests with Vitest and Testing Library
 - Docker image to build and serve the production bundle via Nginx
 
@@ -37,8 +38,7 @@ The static assets will be generated in `dist/`.
 Build the image (override the basket API base if needed):
 ```bash
 docker build \
-  --build-arg CUSTOM_BASKET_API_URL=http://localhost:8000/ \
-  --build-arg VITE_PRICING_API_DOCS_URL=http://localhost:8000/docs#/ \
+  --build-arg VITE_CUSTOM_BASKET_API_URL=http://localhost:8000/ \
   -t custom-basket-ui .
 ```
 
@@ -58,8 +58,7 @@ docker compose up --build
 Override the basket API base during build:
 ```bash
 docker compose build \
-  --build-arg CUSTOM_BASKET_API_URL=http://localhost:8000/
-  --build-arg VITE_PRICING_API_DOCS_URL=http://localhost:8000/docs#/
+  --build-arg VITE_CUSTOM_BASKET_API_URL=http://localhost:8000/
 docker compose up
 ```
 
@@ -74,13 +73,11 @@ docker compose up
 ## GitHub Actions
 This repo ships with `.github/workflows/docker-publish.yml` which builds the Docker image on each push to `main` (and version tags) and pushes it to GitHub Container Registry.
 
-- Optional: set the secret `CUSTOM_BASKET_API_URL` to override the default API endpoint baked into the build.
-- Optional: set the secret `VITE_PRICING_API_DOCS_URL` to control the API documentation link shown in the UI.
+- Optional: set the secret `VITE_CUSTOM_BASKET_API_URL` to override the default API endpoint baked into the build.
 - Update the `REGISTRY`/`IMAGE_NAME` env values if you prefer a different registry.
 
 ## Environment Variables
-- `CUSTOM_BASKET_API_URL` — set during build to bake in the base API URL (defaults to `http://localhost:8000/`).
-- `VITE_PRICING_API_DOCS_URL` — controls the documentation link surfaced inside the UI (defaults to `http://localhost:8000/docs#/`).
+- `VITE_CUSTOM_BASKET_API_URL` — set during build to bake in the base API URL (defaults to `http://localhost:8000/`).
 
 ## Project Structure
 ```

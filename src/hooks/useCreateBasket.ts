@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { ApiError, CreateBasketRequest, CreateBasketResponse } from '../types/api';
 
-const envBaseUrl = import.meta.env?.CUSTOM_BASKET_API_URL;
+const envBaseUrl = import.meta.env?.VITE_CUSTOM_BASKET_API_URL;
 
 const ensureTrailingSlash = (value: string): string =>
   value.endsWith('/') ? value : `${value}/`;

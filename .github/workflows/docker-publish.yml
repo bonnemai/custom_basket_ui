@@ -25,19 +25,17 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Configure basket API urls
+      - name: Configure basket API url
         run: |
-          if [ -n "${{ secrets.CUSTOM_BASKET_API_URL }}" ]; then
-            echo "CUSTOM_BASKET_API_URL=${{ secrets.CUSTOM_BASKET_API_URL }}" >> $GITHUB_ENV
-          else
-            echo "CUSTOM_BASKET_API_URL=http://localhost:8000/" >> $GITHUB_ENV
+          BASE_URL="${{ secrets.VITE_CUSTOM_BASKET_API_URL }}"
+          if [ -z "$BASE_URL" ]; then
+            BASE_URL="http://localhost:8000/"
           fi
-
-          if [ -n "${{ secrets.VITE_PRICING_API_DOCS_URL }}" ]; then
-            echo "VITE_PRICING_API_DOCS_URL=${{ secrets.VITE_PRICING_API_DOCS_URL }}" >> $GITHUB_ENV
-          else
-            echo "VITE_PRICING_API_DOCS_URL=http://localhost:8000/docs#/" >> $GITHUB_ENV
-          fi
+          case "$BASE_URL" in
+            */) : ;;
+            *) BASE_URL="$BASE_URL/" ;;
+          esac
+          echo "VITE_CUSTOM_BASKET_API_URL=$BASE_URL" >> $GITHUB_ENV
 
       - name: Log in to GitHub Container Registry
         if: github.event_name != 'pull_request'
@@ -57,5 +55,4 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
           build-args: |
-            CUSTOM_BASKET_API_URL=${{ env.CUSTOM_BASKET_API_URL }}
-            VITE_PRICING_API_DOCS_URL=${{ env.VITE_PRICING_API_DOCS_URL }}
+            VITE_CUSTOM_BASKET_API_URL=${{ env.VITE_CUSTOM_BASKET_API_URL }}

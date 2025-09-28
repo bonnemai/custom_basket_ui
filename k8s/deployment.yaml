@@ -21,8 +21,8 @@ spec:
           ports:
             - containerPort: 80
           env:
-            - name: CUSTOM_BASKET_API_URL
-              value: http://pricing-api.default.svc.cluster.local:8000/
+            - name: VITE_CUSTOM_BASKET_API_URL
+              value: https://custom-basket-api.20urgjtsc9b0.eu-gb.codeengine.appdomain.cloud/
           readinessProbe:
             httpGet:
               path: /

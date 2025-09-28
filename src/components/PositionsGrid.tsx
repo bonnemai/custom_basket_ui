@@ -2,8 +2,8 @@ import { useCallback, useMemo, useRef } from 'react';
 import type { CellValueChangedEvent, ColDef } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import type { AgGridReact as AgGridReactType } from 'ag-grid-react';
-import { Button, Space, Typography } from 'antd';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Space, Typography, message } from 'antd';
+import { DeleteOutlined, PlusOutlined, SnippetsOutlined } from '@ant-design/icons';
 import type { BasketPosition } from '../types/api';
 import { createEmptyPosition } from '../utils/defaults';
 
@@ -20,8 +20,43 @@ const numberOrZero = (value: unknown): number => {
   return Number.isFinite(numeric) ? numeric : 0;
 };
 
+const parseClipboardText = (raw: string): BasketPosition[] => {
+  if (!raw) {
+    return [];
+  }
+
+  return raw
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .map((line) => line.split(/\t|,/).map((cell) => cell.trim()))
+    .filter((cells) => cells.length > 0)
+    .filter((cells, index) => {
+      if (index === 0) {
+        const header = cells.join(' ').toLowerCase();
+        if (header.includes('ticker') && header.includes('weight')) {
+          return false;
+        }
+      }
+      return true;
+    })
+    .map((cells) => {
+      const [ticker = '', weightCell = ''] = cells;
+      const parsedWeight = Number(weightCell);
+      const weight = Number.isFinite(parsedWeight) ? parsedWeight : 0;
+
+      return {
+        ...createEmptyPosition(),
+        ticker,
+        weight
+      };
+    })
+    .filter((position) => position.ticker.length > 0);
+};
+
 export function PositionsGrid({ positions, onChange }: PositionsGridProps) {
   const gridRef = useRef<AgGridReactType<BasketPosition>>(null);
+  const [messageApi, contextHolder] = message.useMessage();
 
   const columnDefs = useMemo<ColDef<BasketPosition>[]>(
     () => [
@@ -49,7 +84,8 @@ export function PositionsGrid({ positions, onChange }: PositionsGridProps) {
     sortable: true,
     resizable: true,
     filter: true,
-    suppressHeaderMenuButton: true
+    suppressHeaderMenuButton: true,
+    enableCellChangeFlash: true
   }), []);
 
   const handleCellValueChanged = useCallback(
@@ -97,8 +133,37 @@ export function PositionsGrid({ positions, onChange }: PositionsGridProps) {
     onChange(updated);
   }, [positions, onChange]);
 
+  const handlePasteFromClipboard = useCallback(async () => {
+    try {
+      if (!navigator.clipboard?.readText) {
+        messageApi.warning('Clipboard access is not available. Try Ctrl/Cmd + V directly in the grid.');
+        gridRef.current?.api.pasteFromClipboard();
+        return;
+      }
+
+      const text = await navigator.clipboard.readText();
+      const parsed = parseClipboardText(text);
+
+      if (parsed.length === 0) {
+        messageApi.info('No valid ticker/weight rows found in the clipboard.');
+        return;
+      }
+
+      const shouldReplaceExisting =
+        positions.length === 1 && positions[0]?.ticker === '' && positions[0]?.weight === 0;
+
+      const nextPositions = shouldReplaceExisting ? parsed : [...positions, ...parsed];
+      onChange(nextPositions);
+      messageApi.success(`Added ${parsed.length} position${parsed.length > 1 ? 's' : ''} from clipboard.`);
+    } catch (error) {
+      messageApi.error('Unable to read clipboard contents.');
+    }
+  }, [messageApi, onChange, positions]);
+
   return (
-    <div className="positions-grid">
+    <>
+      {contextHolder}
+      <div className="positions-grid">
       <Typography.Paragraph type="secondary" className="positions-grid__description">
         Use the grid to capture the basket tickers and their weights. Hold Shift to select multiple
         rows for removal.
@@ -107,6 +172,9 @@ export function PositionsGrid({ positions, onChange }: PositionsGridProps) {
       <Space className="positions-grid__controls">
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAddRow}>
           Add Position
+        </Button>
+        <Button icon={<SnippetsOutlined />} onClick={handlePasteFromClipboard}>
+          Paste From Clipboard
         </Button>
         <Button
           danger
@@ -126,10 +194,14 @@ export function PositionsGrid({ positions, onChange }: PositionsGridProps) {
           defaultColDef={defaultColDef}
           rowSelection="multiple"
           animateRows
+          enableRangeSelection
+          ensureDomOrder
+          enterMovesDownAfterEdit
           onCellValueChanged={handleCellValueChanged}
         />
       </div>
     </div>
+    </>
   );
 }
 

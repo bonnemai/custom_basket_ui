@@ -1,0 +1,19 @@
+services:
+  custom-basket-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        CUSTOM_BASKET_API_URL: http://localhost:8000/
+        VITE_PRICING_API_DOCS_URL: http://localhost:8000/docs#/
+    ports:
+      - "8080:80"
+    environment:
+      - CUSTOM_BASKET_API_URL=https://custom-basket-api.20urgjtsc9b0.eu-gb.codeengine.appdomain.cloud/
+      - VITE_PRICING_API_DOCS_URL=https://custom-basket-api.20urgjtsc9b0.eu-gb.codeengine.appdomain.cloud/docs#
+    restart: unless-stopped
+  custom-basket-api:
+    image: ghcr.io/bonnemai/custom-basket:main@sha256:43e792f67224f82737c4af197e0e5e2b016572a06cc64b6d04fb1c8c464dbacc
+    ports:
+      - "8000:8000"
+    restart: unless-stopped

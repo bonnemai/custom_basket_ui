@@ -31,24 +31,28 @@ export function ExistingBasketsGrid({ baskets }: ExistingBasketsGridProps) {
         field: 'weight_sum',
         headerName: 'Weight Sum',
         width: 130,
+        type: 'numericColumn',
         valueFormatter: ({ value }) => formatNumber(value, 3)
       },
       {
         field: 'basket_price',
         headerName: 'Basket Price',
         width: 150,
+        type: 'numericColumn',
         valueFormatter: ({ value }) => formatNumber(value, 3)
       },
       {
         field: 'total_notional',
         headerName: 'Total Notional',
         width: 170,
+        type: 'numericColumn',
         valueFormatter: ({ value }) => formatNumber(value, 0)
       },
       {
         field: 'positions',
         headerName: 'Positions',
         width: 120,
+        type: 'numericColumn',
         valueFormatter: ({ value }) => Array.isArray(value) ? String(value.length) : '0'
       },
       {

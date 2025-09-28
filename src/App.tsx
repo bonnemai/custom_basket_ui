@@ -152,12 +152,6 @@ function App() {
           />
         )}
 
-        {data && (
-          <Card title="Response">
-            <pre className="response">{JSON.stringify(data, null, 2)}</pre>
-          </Card>
-        )}
-
         {streamError && (
           <Alert type="warning" showIcon message="Basket stream" description={streamError} />
         )}

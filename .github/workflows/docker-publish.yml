@@ -27,7 +27,7 @@ jobs:
 
       - name: Configure basket API url
         run: |
-          BASE_URL="${{ secrets.VITE_CUSTOM_BASKET_API_URL }}"
+          BASE_URL="${{ vars.VITE_CUSTOM_BASKET_API_URL }}"
           if [ -z "$BASE_URL" ]; then
             BASE_URL="http://localhost:8000/"
           fi

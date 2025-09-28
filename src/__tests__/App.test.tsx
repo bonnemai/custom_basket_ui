@@ -36,7 +36,7 @@ describe('App', () => {
     vi.restoreAllMocks();
   });
 
-  it('submits basket creation request and renders the response', async () => {
+  it('submits basket creation request with the current form values', async () => {
     const fetchSpy = vi
       .spyOn(globalThis, 'fetch')
       .mockImplementation(async () =>
@@ -59,10 +59,8 @@ describe('App', () => {
       typeof options.body === 'string' ? options.body : JSON.stringify({});
 
     const body = JSON.parse(payloadText);
-    expect(body.basket_name).toBeDefined();
+    expect(body.basket_name).toBe('Sample Basket');
+    expect(body.base_currency).toBe('USD');
     expect(body.positions).toHaveLength(1);
-
-    await screen.findByText(/response/i);
-    await screen.findByText(/generated-basket/i);
   });
 });

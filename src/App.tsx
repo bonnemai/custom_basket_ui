@@ -79,53 +79,67 @@ function App() {
 
         <Form layout="vertical" onSubmitCapture={handleSubmit}>
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
-            <Card title="Basket Details">
-              <Row gutter={[16, 16]}>
-                <Col xs={24} md={12} lg={8}>
-                  <Form.Item label="Basket Name" required>
-                    <Input
-                      value={formData.basket_name}
-                      onChange={(event) => handlePrimitiveChange('basket_name', event.target.value)}
-                      required
-                    />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12} lg={8}>
-                  <Form.Item label="Base Currency" required>
-                    <Input
-                      value={formData.base_currency}
-                      onChange={(event) => handlePrimitiveChange('base_currency', event.target.value)}
-                      required
-                    />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12} lg={8}>
-                  <Form.Item label="Notional" required>
-                    <InputNumber
-                      min={0}
-                      step={0.01}
-                      precision={2}
-                      style={{ width: '100%' }}
-                      value={formData.notional}
-                      onChange={(value) => handlePrimitiveChange('notional', Number(value ?? 0))}
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
+            <Card title="Basket Configuration">
+              <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                <Row gutter={[16, 16]}>
+                  <Col xs={24} md={12} lg={8}>
+                    <Form.Item label="Basket Name" required>
+                      <Input
+                        value={formData.basket_name}
+                        onChange={(event) => handlePrimitiveChange('basket_name', event.target.value)}
+                        required
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col xs={24} md={12} lg={8}>
+                    <Form.Item label="Base Currency" required>
+                      <Input
+                        value={formData.base_currency}
+                        onChange={(event) => handlePrimitiveChange('base_currency', event.target.value)}
+                        required
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col xs={24} md={12} lg={8}>
+                    <Form.Item label="Notional" required>
+                      <InputNumber
+                        min={0}
+                        step={0.01}
+                        precision={2}
+                        style={{ width: '100%' }}
+                        formatter={(value) => {
+                          if (value == null) {
+                            return '';
+                          }
+                          const [integer, decimal] = value.toString().split('.');
+                          const withSeparators = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                          return decimal ? `${withSeparators}.${decimal}` : withSeparators;
+                        }}
+                        parser={(value) => {
+                          if (!value) {
+                            return 0;
+                          }
+                          const normalized = value.replace(/,/g, '');
+                          const parsed = Number(normalized);
+                          return Number.isFinite(parsed) ? parsed : 0;
+                        }}
+                        value={formData.notional}
+                        onChange={(value) => handlePrimitiveChange('notional', Number(value ?? 0))}
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
 
-            <Card title="Positions">
-              <PositionsGrid positions={formData.positions} onChange={handlePositionsChange} />
-            </Card>
+                <PositionsGrid positions={formData.positions} onChange={handlePositionsChange} />
 
-            <Card title="Review & Submit">
-              <Space>
-                <Button type="primary" htmlType="submit" loading={loading}>
-                  Add Basket
-                </Button>
-                <Button htmlType="button" onClick={handleReset} disabled={loading}>
-                  Reset to sample
-                </Button>
+                <Space>
+                  <Button type="primary" htmlType="submit" loading={loading}>
+                    Add Basket
+                  </Button>
+                  <Button htmlType="button" onClick={handleReset} disabled={loading}>
+                    Reset to sample
+                  </Button>
+                </Space>
               </Space>
             </Card>
 

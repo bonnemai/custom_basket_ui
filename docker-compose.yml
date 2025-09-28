@@ -1,17 +1,14 @@
 services:
   custom-basket-ui:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        VITE_CUSTOM_BASKET_API_URL: http://localhost:8000/
+    image: ghcr.io/bonnemai/custom_basket_ui:latest
+    # image: ghcr.io/bonnemai/custom_basket_ui:latest@sha256:aebe5770d2e82c86145b5ac40ddbbe0947d1a88281a707113c2b8bdd7ca464b5
+    platform: linux/amd64
     ports:
       - "8080:80"
-    environment:
-      - VITE_CUSTOM_BASKET_API_URL=https://custom-basket-api.20urgjtsc9b0.eu-gb.codeengine.appdomain.cloud/
     restart: unless-stopped
   custom-basket-api:
-    image: ghcr.io/bonnemai/custom-basket:main@sha256:43e792f67224f82737c4af197e0e5e2b016572a06cc64b6d04fb1c8c464dbacc
+    image: ghcr.io/bonnemai/custom-basket:latest
+    platform: linux/amd64
     ports:
       - "8000:8000"
     restart: unless-stopped

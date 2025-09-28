@@ -10,6 +10,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  VITE_CUSTOM_BASKET_API_URL: https://custom-basket-api.20urgjtsc9b0.eu-gb.codeengine.appdomain.cloud
 
 jobs:
   build-and-push:
@@ -24,18 +25,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      - name: Configure basket API url
-        run: |
-          BASE_URL="${{ vars.VITE_CUSTOM_BASKET_API_URL }}"
-          if [ -z "$BASE_URL" ]; then
-            BASE_URL="http://localhost:8000/"
-          fi
-          case "$BASE_URL" in
-            */) : ;;
-            *) BASE_URL="$BASE_URL/" ;;
-          esac
-          echo "VITE_CUSTOM_BASKET_API_URL=$BASE_URL" >> $GITHUB_ENV
 
       - name: Log in to GitHub Container Registry
         if: github.event_name != 'pull_request'

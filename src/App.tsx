@@ -27,6 +27,9 @@ export const cleansePayload = (
 });
 
 const DOCS_URL = `${API_BASE_URL}docs#/`;
+const releaseDateTimeLabel = new Date(
+  import.meta.env.VITE_RELEASE_TIMESTAMP ?? Date.now()
+).toLocaleString();
 
 function App() {
   const [formData, setFormData] = useState(createInitialRequest);
@@ -70,11 +73,7 @@ function App() {
         <div>
           <Title level={2}>Custom Basket Builder</Title>
           <Paragraph>
-            Configure your basket, review the outgoing JSON payload, and send it to the basket service. Review the{' '}
-            <Link href={DOCS_URL} target="_blank" rel="noreferrer noopener">
-              API documentation
-            </Link>{' '}
-            for request details.
+            Configure your basket and send it to the basket service for intraday pricing.
           </Paragraph>
         </div>
 
@@ -162,6 +161,16 @@ function App() {
         {streamError && (
           <Alert type="warning" showIcon message="Basket stream" description={streamError} />
         )}
+
+        <div style={{ textAlign: 'center', marginTop: 24 }}>
+          <Space direction="vertical" size="small" style={{ width: '100%' }}>
+            <Link href={DOCS_URL} target="_blank" rel="noreferrer noopener">
+              API documentation
+            </Link>
+            <Text type="secondary">Release built: {releaseDateTimeLabel}</Text>
+            <Text type="secondary">Olivier Bonnemaison</Text>
+          </Space>
+        </div>
       </Space>
     </main>
   );

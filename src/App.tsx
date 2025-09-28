@@ -176,7 +176,9 @@ function App() {
               API documentation
             </Link>
             <Text type="secondary">Release built: {releaseDateTimeLabel}</Text>
-            <Text type="secondary">Olivier Bonnemaison</Text>
+            <Link href="https://github.com/bonnemai/custom_basket_ui" target="_blank" rel="noreferrer noopener">
+              Olivier Bonnemaison
+            </Link>
           </Space>
         </div>
       </Space>

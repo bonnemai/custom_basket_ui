@@ -28,6 +28,11 @@ Visit http://localhost:5173 and make sure the basket API is reachable at the con
 npm test
 ```
 
+Generate a coverage report (used by SonarCloud):
+```bash
+npm run test:coverage
+```
+
 ## Building for Production
 ```bash
 npm run build
@@ -78,7 +83,7 @@ This repo ships with the following workflows:
   - Update the `REGISTRY`/`IMAGE_NAME` env values if you prefer a different registry.
 - `.github/workflows/sonar.yml` runs SonarCloud quality gate checks on pushes and pull requests. The workflow targets the `prd` GitHub environment.
   - Add the repository secret `SONAR_TOKEN` (generated from SonarCloud) and repository variables `SONAR_ORGANIZATION` and `SONAR_PROJECT_KEY` before enabling the workflow.
-  - The workflow runs `npm test` and `npm run build` prior to invoking the Sonar scan.
+  - The workflow runs `npm run test:coverage` (to emit `coverage/lcov.info`) and `npm run build` prior to invoking the Sonar scan.
 
 ## Environment Variables
 - `VITE_CUSTOM_BASKET_API_URL` — set during build to bake in the base API URL (defaults to `http://localhost:8000/`).

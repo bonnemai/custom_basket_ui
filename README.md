@@ -71,10 +71,14 @@ docker compose up
 3. Expose the `Service` externally (e.g. via an `Ingress` or `LoadBalancer` service) if you need public access.
 
 ## GitHub Actions
-This repo ships with `.github/workflows/docker-publish.yml` which builds the Docker image on each push to `main` (and version tags) and pushes it to GitHub Container Registry.
+This repo ships with the following workflows:
 
-- Optional: set the secret `VITE_CUSTOM_BASKET_API_URL` to override the default API endpoint baked into the build.
-- Update the `REGISTRY`/`IMAGE_NAME` env values if you prefer a different registry.
+- `.github/workflows/docker-publish.yml` builds the Docker image on each push to `main` (and version tags) and publishes it to GitHub Container Registry. The workflow targets the `prd` GitHub environment.
+  - Optional: set the secret `VITE_CUSTOM_BASKET_API_URL` to override the default API endpoint baked into the build.
+  - Update the `REGISTRY`/`IMAGE_NAME` env values if you prefer a different registry.
+- `.github/workflows/sonar.yml` runs SonarCloud quality gate checks on pushes and pull requests. The workflow targets the `prd` GitHub environment.
+  - Add the repository secret `SONAR_TOKEN` (generated from SonarCloud) and repository variables `SONAR_ORGANIZATION` and `SONAR_PROJECT_KEY` before enabling the workflow.
+  - The workflow runs `npm test` and `npm run build` prior to invoking the Sonar scan.
 
 ## Environment Variables
 - `VITE_CUSTOM_BASKET_API_URL` — set during build to bake in the base API URL (defaults to `http://localhost:8000/`).

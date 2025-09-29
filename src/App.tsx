@@ -103,6 +103,7 @@ function App() {
                   <Col xs={24} md={12} lg={8}>
                     <Form.Item label="Notional" required>
                       <InputNumber
+                        className="notional-input-number"
                         min={0}
                         step={0.01}
                         precision={2}

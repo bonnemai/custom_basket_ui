@@ -1,4 +1,4 @@
-name: Build and Publish Docker Image
+name: Build and Deploy UI
 
 on:
   push:
@@ -8,41 +8,53 @@ on:
   workflow_dispatch:
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
   VITE_CUSTOM_BASKET_API_URL: https://custom-basket-api.20urgjtsc9b0.eu-gb.codeengine.appdomain.cloud
+  S3_BUCKET: curve-fitter-ui
+  BUILD_DIR: dist
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
     environment: prd
     permissions:
       contents: read
-      packages: write
       id-token: write
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
 
-      - name: Log in to GitHub Container Registry
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          VITE_CUSTOM_BASKET_API_URL: ${{ env.VITE_CUSTOM_BASKET_API_URL }}
+
+      - name: Upload dist artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: ${{ env.BUILD_DIR }}
+
+      - name: Configure AWS credentials
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Build and push image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
-          build-args: |
-            VITE_CUSTOM_BASKET_API_URL=${{ env.VITE_CUSTOM_BASKET_API_URL }}
+      - name: Sync dist to S3
+        if: github.event_name != 'pull_request'
+        run: aws s3 sync ${{ env.BUILD_DIR }} s3://${{ env.S3_BUCKET }} --delete

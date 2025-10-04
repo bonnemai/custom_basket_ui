@@ -26,15 +26,9 @@ jobs:
 
       - name: Verify Sonar configuration
         run: |
-          if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
-            echo "::error::Missing SONAR_TOKEN secret. Configure it in the repository settings." && exit 1
-          fi
-          if [ -z "${{ vars.SONAR_ORGANIZATION }}" ]; then
-            echo "::error::Missing SONAR_ORGANIZATION repository variable." && exit 1
-          fi
-          if [ -z "${{ vars.SONAR_PROJECT_KEY }}" ]; then
-            echo "::error::Missing SONAR_PROJECT_KEY repository variable." && exit 1
-          fi
+          if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then echo "::error::Missing SONAR_TOKEN secret. Configure it in the repository settings." && exit 1; fi
+          if [ -z "${{ vars.SONAR_ORGANIZATION }}" ]; then echo "::error::Missing SONAR_ORGANIZATION repository variable." && exit 1; fi
+          if [ -z "${{ vars.SONAR_PROJECT_KEY }}" ]; then echo "::error::Missing SONAR_PROJECT_KEY repository variable." && exit 1; fi
 
       - name: Set up Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
@@ -62,3 +56,5 @@ jobs:
             -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
             -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+
+# Staging environment: https://staging.d3iwsh8gt9f3of.amplifyapp.com

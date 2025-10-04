@@ -172,9 +172,16 @@ function App() {
         )}
 
         <div style={{ textAlign: 'center', marginTop: 24 }}>
-          <Space direction="vertical" size="small" style={{ width: '100%' }}>
+          <Space size="middle">
             <Link href={DOCS_URL} target="_blank" rel="noreferrer noopener">
               API documentation
+            </Link>
+            <Link
+              href="https://staging.d3iwsh8gt9f3of.amplifyapp.com"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              Staging app
             </Link>
             <Text type="secondary">Release built: {releaseDateTimeLabel}</Text>
             <Link href="https://github.com/bonnemai/custom_basket_ui" target="_blank" rel="noreferrer noopener">

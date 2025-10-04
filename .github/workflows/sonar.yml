@@ -20,7 +20,7 @@ jobs:
       NODE_VERSION: 20
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           fetch-depth: 0
 
@@ -31,7 +31,7 @@ jobs:
           if [ -z "${{ vars.SONAR_PROJECT_KEY }}" ]; then echo "::error::Missing SONAR_PROJECT_KEY repository variable." && exit 1; fi
 
       - name: Set up Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -48,7 +48,7 @@ jobs:
         run: npm run build
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarcloud-github-action@ba3875ecf642b2129de2b589510c81a8b53dbf4e # master (2025-08-27)
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:

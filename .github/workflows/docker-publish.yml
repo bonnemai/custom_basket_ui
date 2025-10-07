@@ -8,9 +8,10 @@ on:
   workflow_dispatch:
 
 env:
-  VITE_CUSTOM_BASKET_API_URL: https://custom-basket-api.20urgjtsc9b0.eu-gb.codeengine.appdomain.cloud
-  S3_BUCKET: curve-fitter-ui
+  VITE_CUSTOM_BASKET_API_URL: https://6adnqiwsenkvr2lasnrw25h5hm0ghlfb.lambda-url.eu-west-2.on.aws
+  S3_BUCKET: custom-basket-ui
   BUILD_DIR: dist
+  AWS_REGION: eu-west-2
 
 jobs:
   build-and-deploy:
@@ -51,9 +52,8 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Sync dist to S3
         if: github.event_name != 'pull_request'

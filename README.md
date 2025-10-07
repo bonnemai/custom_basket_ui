@@ -2,14 +2,14 @@
 
 React single-page app to create custom baskets against the API exposed at `POST /baskets`. The base URL is supplied via `VITE_CUSTOM_BASKET_API_URL` and defaults to `http://localhost:8000/` (the UI appends `/baskets` automatically).
 
-The UI also listens to `GET /baskets/stream` via Server-Sent Events to display live valuations of existing baskets.
+The UI polls `GET /baskets` every second to display live valuations of existing baskets.
 
 ## Features
 - Dynamic form for basket details and position weights
 - Metadata cleanup for each position prior to submission
 - AG Grid-powered creation flow for new custom baskets
 - Clipboard paste support to import tickers and weights directly from spreadsheets
-- Live basket valuation grid backed by Server-Sent Events
+- Live basket valuation grid backed by polling (AWS Lambda compatible)
 - Live request payload preview and JSON response viewer
 - Ant Design powered layout and controls
 - Environment-configured API endpoint via `VITE_CUSTOM_BASKET_API_URL`
@@ -74,6 +74,38 @@ docker compose up
    kubectl apply -f k8s/
    ```
 3. Expose the `Service` externally (e.g. via an `Ingress` or `LoadBalancer` service) if you need public access.
+
+## AWS Amplify Deployment (Manual S3 Upload)
+This project uses AWS Amplify to serve the application via CloudFront CDN, with GitHub Actions handling the build and S3 upload.
+
+### Architecture
+1. **GitHub Actions** builds the app and syncs to S3 bucket `custom-basket-ui` (see `.github/workflows/docker-publish.yml`)
+2. **AWS Amplify** is configured to serve content from that S3 bucket via CloudFront
+3. **Result**: Automatic deployment on every push to `main` with CDN distribution
+
+### Initial Amplify Setup (One-time)
+1. **Create Amplify app**:
+   - Sign in to the [AWS Amplify Console](https://console.aws.amazon.com/amplify/)
+   - Click "New app" → "Deploy without Git provider"
+   - Select "Amazon S3" as the method
+   - Set S3 location: `s3://custom-basket-ui/`
+   - Click "Save and deploy"
+
+2. **Configure custom domain** (optional):
+   - Go to "App settings" → "Domain management"
+   - Click "Add domain"
+   - Follow the instructions to configure DNS records
+
+### Deployment Process
+Every push to `main` triggers:
+1. GitHub Actions builds the app with `npm run build`
+2. Built files from `dist/` are synced to S3 bucket `custom-basket-ui`
+3. AWS Amplify serves the updated content via CloudFront CDN
+4. App is available at your Amplify URL (e.g., `https://main.xxxxxx.amplifyapp.com`)
+
+### Required GitHub Secrets
+Set these in your repository (Settings → Secrets and variables → Actions):
+- `AWS_ROLE_ARN` - IAM role ARN for OIDC authentication to deploy to S3
 
 ## GitHub Actions
 This repo ships with the following workflows:

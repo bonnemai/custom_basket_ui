@@ -194,9 +194,8 @@ export function PositionsGrid({ positions, onChange }: PositionsGridProps) {
           defaultColDef={defaultColDef}
           rowSelection="multiple"
           animateRows
-          enableRangeSelection
           ensureDomOrder
-          enterMovesDownAfterEdit
+          enterNavigatesVerticallyAfterEdit
           onCellValueChanged={handleCellValueChanged}
         />
       </div>

@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import type { BasketSnapshot, BasketStreamPayload } from '../types/api';
 import { API_BASE_URL } from './useCreateBasket';
 
-const STREAM_RESOURCE = 'baskets/stream';
-export const BASKET_STREAM_ENDPOINT = `${API_BASE_URL}${STREAM_RESOURCE}`;
+const BASKETS_RESOURCE = 'baskets';
+export const BASKETS_ENDPOINT = `${API_BASE_URL}${BASKETS_RESOURCE}`;
+const POLLING_INTERVAL_MS = 1000; // Poll every second
 
 type BasketStreamState = {
   baskets: BasketSnapshot[];
@@ -12,57 +13,59 @@ type BasketStreamState = {
   error?: string;
 };
 
-const supportsEventSource = (): boolean => {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-
-  return typeof window.EventSource !== 'undefined';
-};
-
 export function useBasketStream() {
   const [state, setState] = useState<BasketStreamState>({ baskets: [], connected: false });
 
   useEffect(() => {
-    if (!supportsEventSource()) {
-      return undefined;
-    }
+    let isActive = true;
+    let timeoutId: NodeJS.Timeout | null = null;
 
-    const source = new window.EventSource(BASKET_STREAM_ENDPOINT);
-
-    const handlePrices = (event: MessageEvent<string>) => {
+    const fetchBaskets = async () => {
       try {
-        const payload = JSON.parse(event.data) as BasketStreamPayload;
-        setState({
-          baskets: payload.baskets,
-          asOf: payload.as_of,
-          connected: true
+        const response = await fetch(BASKETS_ENDPOINT, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch baskets: ${response.statusText}`);
+        }
+
+        const payload = await response.json() as BasketStreamPayload;
+
+        if (isActive) {
+          setState({
+            baskets: payload.baskets,
+            asOf: payload.as_of,
+            connected: true,
+            error: undefined
+          });
+        }
       } catch (error) {
-        setState((current) => ({
-          ...current,
-          error: error instanceof Error ? error.message : 'Failed to parse basket stream payload'
-        }));
+        if (isActive) {
+          setState((current) => ({
+            ...current,
+            connected: false,
+            error: error instanceof Error ? error.message : 'Failed to fetch baskets'
+          }));
+        }
+      } finally {
+        if (isActive) {
+          timeoutId = setTimeout(fetchBaskets, POLLING_INTERVAL_MS);
+        }
       }
     };
 
-    const handleOpen = () => {
-      setState((current) => ({ ...current, connected: true, error: undefined }));
-    };
-
-    const handleError = () => {
-      setState((current) => ({ ...current, connected: false, error: 'Lost connection to basket stream' }));
-    };
-
-    source.addEventListener('prices', handlePrices as EventListener);
-    source.onopen = handleOpen;
-    source.onerror = handleError;
+    // Start polling immediately
+    fetchBaskets();
 
     return () => {
-      source.removeEventListener('prices', handlePrices as EventListener);
-      source.onopen = null;
-      source.onerror = null;
-      source.close();
+      isActive = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     };
   }, []);
 

@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VITE_CUSTOM_BASKET_API_URL=https://6adnqiwsenkvr2lasnrw25h5hm0ghlfb.lambda-url.eu-west-2.on.aws/
+# VITE_CUSTOM_BASKET_API_URL=https://6adnqiwsenkvr2lasnrw25h5hm0ghlfb.lambda-url.eu-west-2.on.aws/
+VITE_CUSTOM_BASKET_API_URL=http://localhost:8080/
 NAME=custom-basket-ui
 # VITE_CUSTOM_BASKET_API_URL=${VITE_CUSTOM_BASKET_API_URL:-https://custom-basket-api.20urgjtsc9b0.eu-gb.codeengine.appdomain.cloud/}
-VITE_CUSTOM_BASKET_API_URL=${VITE_CUSTOM_BASKET_API_URL:-http://localhost:8000/}
+VITE_CUSTOM_BASKET_API_URL=${VITE_CUSTOM_BASKET_API_URL:-http://localhost:9000/}
 
 
 docker stop "$NAME" >/dev/null 2>&1 || true

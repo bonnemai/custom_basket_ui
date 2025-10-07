@@ -33,12 +33,16 @@ export function useBasketStream() {
           throw new Error(`Failed to fetch baskets: ${response.statusText}`);
         }
 
-        const payload = await response.json() as BasketStreamPayload;
+        const data = await response.json();
 
         if (isActive) {
+          // Handle both array response and wrapped response formats
+          const baskets = Array.isArray(data) ? data : (data as BasketStreamPayload).baskets;
+          const asOf = Array.isArray(data) ? new Date().toISOString() : (data as BasketStreamPayload).as_of;
+
           setState({
-            baskets: payload.baskets,
-            asOf: payload.as_of,
+            baskets: baskets || [],
+            asOf,
             connected: true,
             error: undefined
           });
